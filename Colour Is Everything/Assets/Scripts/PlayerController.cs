@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
 
 	private Rigidbody _rigid = null;
 
+	[SerializeField] private Transform _gun = null;
+
 	void Awake()
 	{
 		_mainCamera = Camera.main;
@@ -65,8 +67,10 @@ public class PlayerController : MonoBehaviour
 
 		// Rotate the player with the x movement of the mouse.
 		transform.localEulerAngles += new Vector3(0, _yaw, 0);
-		// Rotate the camera with the y movement of the mouse.
+
+		// Rotate the camera and gun with the y movement of the mouse.
 		_mainCamera.transform.localEulerAngles += new Vector3(_pitch, 0, 0);
+		_gun.transform.localEulerAngles += new Vector3(0, 0, _pitch);
 
 		// Inputs.
 		// If the player presses left click.
