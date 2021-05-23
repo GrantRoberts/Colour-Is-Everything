@@ -1,8 +1,8 @@
-Shader "Custom/TexturePainter"
+Shader "Painting/TexturePainter"
 {
 	Properties
 	{
-		_PaintColour("Painter Colour", Colour) = (0, 0, 0, 0);
+		_PainterColor ("Painter Color", Color) = (0, 0, 0, 0)
 	}
 
 	SubShader
@@ -49,7 +49,7 @@ Shader "Custom/TexturePainter"
 			{
 				v2f o;
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-				 o.uv = v.uv;
+				o.uv = v.uv;
 				float4 uv = float4(0, 0, 0, 1);
 				uv.xy = float2(1, _ProjectionParams.x) * (v.uv.xy * float2( 2, 2) - float2(1, 1));
 				o.vertex = uv; 
