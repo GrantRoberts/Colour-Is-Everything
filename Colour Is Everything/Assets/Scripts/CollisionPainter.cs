@@ -4,22 +4,35 @@ using UnityEngine;
 
 public class CollisionPainter : MonoBehaviour
 {
-	public Color paintColor;
+	[SerializeField] private Color _paintColour;
 
-	public float radius = 1;
-	public float strength = 1;
-	public float hardness = 1;
+	[SerializeField] private float _minRadius = 1;
+	[SerializeField] private float _maxRadius = 1;
+	[SerializeField] private float _strength = 1;
+	[SerializeField] private float _hardness = 1;
 
-	private void OnCollisionStay(Collision other) 
+	private ParticleSystem _part = null;
+	private List<ParticleCollisionEvent> _collisionEvents = new List<ParticleCollisionEvent>();
+
+	void Awake()
 	{
-		Debug.Log("Particle Collision");
-		
-		Paintable p = other.collider.GetComponent<Paintable>();
+		_part = GetComponent<ParticleSystem>();
+	}
 
+	void OnParticleCollision(GameObject other)
+	{
+		int numCollisionEvents = _part.GetCollisionEvents(other, _collisionEvents);
+
+		Paintable p = other.GetComponent<Paintable>();
 		if(p != null)
 		{
-			Vector3 pos = other.contacts[0].point;
-			PaintManager.instance.paint(p, pos, radius, hardness, strength, paintColor);
+			Debug.Log("Particle Collision!");
+			for (int i = 0; i< numCollisionEvents; i++)
+			{
+				Vector3 pos = _collisionEvents[i].intersection;
+				float radius = Random.Range(_minRadius, _maxRadius);
+				PaintManager.GetInstance().Paint(p, pos, radius, _hardness, _strength, _paintColour);
+			}
 		}
 	}
 }

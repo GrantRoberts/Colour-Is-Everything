@@ -5,85 +5,88 @@ using UnityEngine.Rendering;
 
 public class PaintManager : MonoBehaviour
 {
-	public static PaintManager instance = null;
-	public Shader texturePaint;
-	public Shader extendIslands;
+	[SerializeField] private static PaintManager _instance = null;
+	[SerializeField] private Shader _texturePaint;
+	[SerializeField] private Shader _extendIslands;
 
-	int prepareUVID = Shader.PropertyToID("_PrepareUV");
-	int positionID = Shader.PropertyToID("_PainterPosition");
-	int hardnessID = Shader.PropertyToID("_Hardness");
-	int strengthID = Shader.PropertyToID("_Strength");
-	int radiusID = Shader.PropertyToID("_Radius");
-	int blendOpID = Shader.PropertyToID("_BlendOp");
-	int colorID = Shader.PropertyToID("_PainterColor");
-	int textureID = Shader.PropertyToID("_MainTex");
-	int uvOffsetID = Shader.PropertyToID("_OffsetUV");
-	int uvIslandsID = Shader.PropertyToID("_UVIslands");
+	private int _prepareUVID = Shader.PropertyToID("_PrepareUV");
+	private int _positionID = Shader.PropertyToID("_PainterPosition");
+	private int _hardnessID = Shader.PropertyToID("_Hardness");
+	private int _strengthID = Shader.PropertyToID("_Strength");
+	private int _radiusID = Shader.PropertyToID("_Radius");
+	private int _blendOpID = Shader.PropertyToID("_BlendOp");
+	private int _colorID = Shader.PropertyToID("_PainterColor");
+	private int _textureID = Shader.PropertyToID("_MainTex");
+	private int _uvOffsetID = Shader.PropertyToID("_OffsetUV");
+	private int _uvIslandsID = Shader.PropertyToID("_UVIslands");
 
-	Material paintMaterial;
-	Material extendMaterial;
+	private Material _paintMaterial;
+	private Material _extendMaterial;
 
-	CommandBuffer command;
+	private CommandBuffer _command;
 
 	public void Awake()
 	{
-		instance = this;
-		paintMaterial = new Material(texturePaint);
-		extendMaterial = new Material(extendIslands);
-		command = new CommandBuffer();
-		command.name = "CommmandBuffer - " + gameObject.name;
+		_instance = this;
+		_paintMaterial = new Material(_texturePaint);
+		_extendMaterial = new Material(_extendIslands);
+		_command = new CommandBuffer();
+		_command.name = "CommmandBuffer - " + gameObject.name;
 	}
 
-	public void initTextures(Paintable paintable)
+	public void InitTextures(Paintable paintable)
 	{
-		RenderTexture mask = paintable.getMask();
-		RenderTexture uvIslands = paintable.getUVIslands();
-		RenderTexture extend = paintable.getExtend();
-		RenderTexture support = paintable.getSupport();
-		Renderer rend = paintable.getRenderer();
+		RenderTexture mask = paintable.GetMask();
+		RenderTexture uvIslands = paintable.GetUVIslands();
+		RenderTexture extend = paintable.GetExtend();
+		RenderTexture support = paintable.GetSupport();
+		Renderer rend = paintable.GetRenderer();
 
-		command.SetRenderTarget(mask);
-		command.SetRenderTarget(extend);
-		command.SetRenderTarget(support);
+		_command.SetRenderTarget(mask);
+		_command.SetRenderTarget(extend);
+		_command.SetRenderTarget(support);
 
-		paintMaterial.SetFloat(prepareUVID, 1);
-		command.SetRenderTarget(uvIslands);
-		command.DrawRenderer(rend, paintMaterial, 0);
+		_paintMaterial.SetFloat(_prepareUVID, 1);
+		_command.SetRenderTarget(uvIslands);
+		_command.DrawRenderer(rend, _paintMaterial, 0);
 
-		Graphics.ExecuteCommandBuffer(command);
-		command.Clear();
+		Graphics.ExecuteCommandBuffer(_command);
+		_command.Clear();
 	}
 
-
-	public void paint(Paintable paintable, Vector3 pos, float radius = 1f, float hardness = .5f, float strength = .5f, Color? color = null)
+	public void Paint(Paintable paintable, Vector3 pos, float radius = 1f, float hardness = .5f, float strength = .5f, Color? colour = null)
 	{
-		RenderTexture mask = paintable.getMask();
-		RenderTexture uvIslands = paintable.getUVIslands();
-		RenderTexture extend = paintable.getExtend();
-		RenderTexture support = paintable.getSupport();
-		Renderer rend = paintable.getRenderer();
+		RenderTexture mask = paintable.GetMask();
+		RenderTexture uvIslands = paintable.GetUVIslands();
+		RenderTexture extend = paintable.GetExtend();
+		RenderTexture support = paintable.GetSupport();
+		Renderer rend = paintable.GetRenderer();
 
-		paintMaterial.SetFloat(prepareUVID, 0);
-		paintMaterial.SetVector(positionID, pos);
-		paintMaterial.SetFloat(hardnessID, hardness);
-		paintMaterial.SetFloat(strengthID, strength);
-		paintMaterial.SetFloat(radiusID, radius);
-		paintMaterial.SetTexture(textureID, support);
-		paintMaterial.SetColor(colorID, color ?? Color.red);
-		extendMaterial.SetFloat(uvOffsetID, paintable.extendsIslandOffset);
-		extendMaterial.SetTexture(uvIslandsID, uvIslands);
+		_paintMaterial.SetFloat(_prepareUVID, 0);
+		_paintMaterial.SetVector(_positionID, pos);
+		_paintMaterial.SetFloat(_hardnessID, hardness);
+		_paintMaterial.SetFloat(_strengthID, strength);
+		_paintMaterial.SetFloat(_radiusID, radius);
+		_paintMaterial.SetTexture(_textureID, support);
+		_paintMaterial.SetColor(_colorID, colour ?? Color.red);
+		_extendMaterial.SetFloat(_uvOffsetID, paintable.GetExtendsIslandOffset());
+		_extendMaterial.SetTexture(_uvIslandsID, uvIslands);
 
-		command.SetRenderTarget(mask);
-		command.DrawRenderer(rend, paintMaterial, 0);
+		_command.SetRenderTarget(mask);
+		_command.DrawRenderer(rend, _paintMaterial, 0);
 
-		command.SetRenderTarget(support);
-		command.Blit(mask, support);
+		_command.SetRenderTarget(support);
+		_command.Blit(mask, support);
 
-		command.SetRenderTarget(extend);
-		command.Blit(mask, extend, extendMaterial);
+		_command.SetRenderTarget(extend);
+		_command.Blit(mask, extend, _extendMaterial);
 
-		Graphics.ExecuteCommandBuffer(command);
-		command.Clear();
+		Graphics.ExecuteCommandBuffer(_command);
+		_command.Clear();
 	}
 
+	public static PaintManager GetInstance()
+	{
+		return _instance;
+	}
 }
