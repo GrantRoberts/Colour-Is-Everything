@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-	[SerializeField] private ParticleSystem _particle = null;
+	[SerializeField] private ParticleSystem _shootingParticle = null;
 
 	private Camera _mainCamera = null;
 
@@ -34,6 +34,8 @@ public class PlayerController : MonoBehaviour
 		_rigid = GetComponent<Rigidbody>();
 
 		Cursor.lockState = CursorLockMode.Locked;
+
+		_shootingParticle.Stop();
 	}
 
 	void FixedUpdate()
@@ -76,10 +78,15 @@ public class PlayerController : MonoBehaviour
 		// If the player presses left click.
 		if (Input.GetMouseButtonDown(0))
 		{
-			Debug.Log("Bang!");
-			// Make sure particle isn't currently playing.
-			if (!_particle.isPlaying)
-				_particle.Play();
+			//Debug.Log("Bang!");
+			//Make sure particle isn't currently playing.
+			if (!_shootingParticle.isPlaying)
+			 	_shootingParticle.Play();
+		}
+		else if (Input.GetMouseButtonUp(0))
+		{
+			//Debug.Log("Stop");
+			_shootingParticle.Stop();
 		}
 	}
 }
