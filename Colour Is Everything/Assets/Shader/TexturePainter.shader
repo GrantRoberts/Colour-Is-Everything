@@ -42,7 +42,7 @@ Shader "Painting/TexturePainter"
 			float mask(float3 position, float3 center, float radius, float hardness)
 			{
 				float m = distance(center, position);
-				return 1 - smoothstep(radius * hardness, radius, m);    
+				return 1 - smoothstep(radius * hardness, radius, m);
 			}
 
 			v2f vert (appdata v)

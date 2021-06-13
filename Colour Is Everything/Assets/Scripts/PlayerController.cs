@@ -54,6 +54,7 @@ public class PlayerController : MonoBehaviour
 
 		_rigid.AddForce(_movementInput, ForceMode.Impulse);
 	}
+
 	void Update()
 	{
 		//----------------------------------------------------------------
@@ -76,14 +77,14 @@ public class PlayerController : MonoBehaviour
 
 		// Inputs.
 		// If the player presses left click.
-		if (Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButton(0))
 		{
 			//Debug.Log("Bang!");
 			//Make sure particle isn't currently playing.
 			if (!_shootingParticle.isPlaying)
 			 	_shootingParticle.Play();
 		}
-		else if (Input.GetMouseButtonUp(0))
+		else
 		{
 			//Debug.Log("Stop");
 			_shootingParticle.Stop();
