@@ -23,6 +23,10 @@ public class PlayerController : MonoBehaviour
 
 	[SerializeField] private float _moveSpeed = 1.5f;
 
+	[SerializeField] private float _jumpForce = 3.0f;
+	[SerializeField] private float _fallModifier = 2.0f;
+	[SerializeField] private float _maxVelocity = 3.0f;
+
 	private Vector3 _movementInput = Vector3.zero;
 
 	private Rigidbody _rigid = null;
@@ -47,6 +51,8 @@ public class PlayerController : MonoBehaviour
 
 	private Queue<Texture2D> _tex2DQueue = new Queue<Texture2D>();
 
+	private KeyCode[] _gooHotkeys = new KeyCode[4] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4 };
+
 	void Awake()
 	{
 		_mainCamera = Camera.main;
@@ -64,7 +70,6 @@ public class PlayerController : MonoBehaviour
 		// Keyboard movement.
 		//----------------------------------------------------------------
 		_movementInput = Vector3.zero;
-		_rigid.velocity = Vector3.zero;
 
 		_movementInput += transform.right * Input.GetAxis("Horizontal");
 		_movementInput += transform.forward * Input.GetAxis("Vertical");
@@ -72,8 +77,24 @@ public class PlayerController : MonoBehaviour
 		_movementInput *= _moveSpeed * 100;
 		_movementInput *= Time.deltaTime;
 
+		if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, 0.8f))
+		{
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				Debug.Log("Jump!");
+				_rigid.velocity += Vector3.up * _jumpForce;
+			}
+		}
+		else
+		{
+			_rigid.velocity += Physics.gravity * Time.fixedDeltaTime;
+		}
+
 		_rigid.AddForce(_movementInput * _rigid.mass, ForceMode.Impulse);
 
+		Vector3 tempVelocity = new Vector3(_rigid.velocity.x, 0.0f, _rigid.velocity.z);
+		Vector3 lateralMovement = Vector3.ClampMagnitude(tempVelocity, _maxVelocity);
+		_rigid.velocity = lateralMovement + Vector3.up * _rigid.velocity.y;
 	}
 
 	void Update()
@@ -110,15 +131,17 @@ public class PlayerController : MonoBehaviour
 			//Debug.Log("Stop");
 			_currentShootingParticle.Stop();
 		}
-		if (Input.GetKeyDown(KeyCode.Alpha1))
+		
+		// GOO selection.
+		for(int i = 0; i < _gooHotkeys.Length; ++i)
 		{
-			_currentShootingParticle.Stop();
-			_currentShootingParticle = _gooParticles[0];
-		}
-		else if (Input.GetKeyDown(KeyCode.Alpha2))
-		{
-			_currentShootingParticle.Stop();
-			_currentShootingParticle = _gooParticles[1];
+			if (i < _gooParticles.Count)
+			{
+				if (Input.GetKeyDown(_gooHotkeys[i]))
+				{
+					_currentShootingParticle = _gooParticles[i];
+				}
+			}
 		}
 
 		_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out _rayHit, 0.55f, 1 << 7);
@@ -126,7 +149,7 @@ public class PlayerController : MonoBehaviour
 		{
 			Debug.DrawLine(transform.position + Vector3.up * 0.5f, _rayHit.point);
 			Renderer rend = _rayHit.collider.gameObject.GetComponent<Renderer>();
-			Debug.Log(_rayHit.collider.name);
+			//Debug.Log(_rayHit.collider.name);
 			RenderTexture tex = rend.material.GetTexture("_MaskTexture") as RenderTexture;
 
 			Texture2D t2d = RTexToT2D(tex);
@@ -140,7 +163,7 @@ public class PlayerController : MonoBehaviour
 			Vector2 pixelUV = _rayHit.textureCoord;
 			pixelUV.x *= t2d.width;
 			pixelUV.y *= t2d.height;
-			Debug.Log(pixelUV);
+			//Debug.Log(pixelUV);
 			
 			_texColour = Color.clear;
 
@@ -152,31 +175,6 @@ public class PlayerController : MonoBehaviour
 			}
 
 			_texColour /= pixels.Length;
-			//_texColour = t2d.GetPixel((int)pixelUV.x, (int)pixelUV.y);
-			//Destroy(t2d);
-			//_checkingColour.value = Vector3.zero;
-			//int averageCounter = 0;
-			////Debug.Log("--------New Check!--------");
-			//for (int y = -_radius; y <= _radius; ++y)
-			//{
-			//	for (int x = -_radius; x <= _radius; ++x)
-			//	{
-			//		GOOColourManager.HSVColour tempColour = new GOOColourManager.HSVColour();
-			//		int pixelX = (int)pixelUV.x + x;
-			//		int pixelY = (int)pixelUV.y + y;
-			//		//Debug.Log("_______________________");
-			//		Color.RGBToHSV(t2d.GetPixel(pixelX, pixelY), out tempColour.value.x, out tempColour.value.y, out tempColour.value.z);
-			//		_checkingColour.value.x += tempColour.value.x;
-			//		_checkingColour.value.y += tempColour.value.y;
-			//		_checkingColour.value.z += tempColour.value.z;
-			//		averageCounter++;
-			//	}
-			//}
-			//_checkingColour.value /= averageCounter;
-			//_texColour = Color.HSVToRGB(_checkingColour.value.x, _checkingColour.value.y, _checkingColour.value.z);
-			//Debug.Log(new Vector3(_texColour.r, _texColour.g, _texColour.b));
-
-			//StartCoroutine("CheckGround");
 		}
 	}
 
@@ -186,86 +184,8 @@ public class PlayerController : MonoBehaviour
 		RenderTexture.active = rTex;
 		t2d.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
 		t2d.Apply();
-		
-		//RenderTexture.active = rTex;
-		//t2d.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
-		//t2d.Apply();
-		//RenderTexture.active = null;
 
 		return t2d;
-	}
-
-	IEnumerator CheckGround()
-	{
-		yield return new WaitForEndOfFrame();
-
-		if (_hitPaintable)
-		{
-			Renderer rend = _rayHit.collider.gameObject.GetComponent<Renderer>();
-			Debug.Log(_rayHit.collider.name);
-			RenderTexture tex = rend.material.GetTexture("_MaskTexture") as RenderTexture;
-
-			Texture2D t2d = RTexToT2D(tex);
-
-			_tex = t2d;
-
-			//_flatTexture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
-			//_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-			//_flatTexture.Apply();
-
-
-			if (_flatTexture != null)
-			{
-				//Vector2 pixelUV = _rayHit.textureCoord;
-				//Debug.Log(pixelUV);
-				//pixelUV.x *= _flatTexture.width;
-				//pixelUV.y *= _flatTexture.height;
-
-				//uvCamera.targetTexture = tex;
-				//uvCamera.Render();
-				//RenderTexture.active = tex;
-
-				//_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-				//RenderTexture.active = null;
-
-
-				//_texColour = _flatTexture.GetPixel((int)pixelUV.x, (int)pixelUV.y);
-				// _checkingColour.value = Vector3.zero;
-				// int averageCounter = 0;
-				// //Debug.Log("--------New Check!--------");
-				// for (int y = -_radius; y <= _radius; ++y)
-				// {
-				// 	for (int x = -_radius; x <= _radius; ++x)
-				// 	{
-				// 		GOOColourManager.HSVColour tempColour = new GOOColourManager.HSVColour();
-				// 		int pixelX = (int)pixelUV.x + x;
-				// 		int pixelY = (int)pixelUV.y + y;
-				// 		//Debug.Log("_______________________");
-				// 		Color.RGBToHSV(_flatTexture.GetPixel(pixelX, pixelY), out tempColour.value.x, out tempColour.value.y, out tempColour.value.z);
-				// 		_checkingColour.value.x += tempColour.value.x;
-				// 		_checkingColour.value.y += tempColour.value.y;
-				// 		_checkingColour.value.z += tempColour.value.z;
-				// 		averageCounter++;
-				// 	}
-				// }
-				// _checkingColour.value /= averageCounter;
-				// _texColour = Color.HSVToRGB(_checkingColour.value.x, _checkingColour.value.y, _checkingColour.value.z);
-				//Debug.Log(new Vector3(_texColour.r, _texColour.g, _texColour.b));
-
-				GOOColourManager.eGOOColours type = new GOOColourManager.eGOOColours();
-
-				if (GOOColourManager._instance.CheckColour(_texColour, out type))
-				{
-					//Debug.Log("Standing on goo!");
-				}
-				//else
-				//Debug.Log("Not standing on goo!");
-			}
-			else
-			{
-				_texColour = Color.clear;
-			}
-		}
 	}
 
 	void OnDrawGizmos()
