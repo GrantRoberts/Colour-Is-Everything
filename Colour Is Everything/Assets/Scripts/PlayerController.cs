@@ -42,6 +42,12 @@ public class PlayerController : MonoBehaviour
 
 	[SerializeField] private List<ParticleSystem> _gooParticles = new List<ParticleSystem>();
 
+	public Texture _tex;
+
+	private RenderTexture _rTex;
+
+	[SerializeField] private Camera uvCamera;
+
 	void Awake()
 	{
 		_mainCamera = Camera.main;
@@ -67,14 +73,8 @@ public class PlayerController : MonoBehaviour
 		_movementInput *= _moveSpeed * 100;
 		_movementInput *= Time.deltaTime;
 
-		_rigid.AddForce(_movementInput, ForceMode.Impulse);
+		_rigid.AddForce(_movementInput * _rigid.mass, ForceMode.Impulse);
 
-		_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out _rayHit, 0.5f, 1 << 7);
-		if (_hitPaintable)
-		{
-			Debug.DrawLine(transform.position + Vector3.up * 0.5f, _rayHit.point);
-			StartCoroutine("CheckGround");
-		}
 	}
 
 	void Update()
@@ -121,6 +121,61 @@ public class PlayerController : MonoBehaviour
 			_currentShootingParticle.Stop();
 			_currentShootingParticle = _gooParticles[1];
 		}
+
+		_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out _rayHit, 0.55f, 1 << 7);
+		if (_hitPaintable)
+		{
+			Debug.DrawLine(transform.position + Vector3.up * 0.5f, _rayHit.point);
+			Renderer rend = _rayHit.collider.gameObject.GetComponent<Renderer>();
+			Debug.Log(_rayHit.collider.name);
+			RenderTexture tex = rend.material.GetTexture("_MaskTexture") as RenderTexture;
+
+			Texture2D t2d = RTexToT2D(tex);
+
+			_tex = t2d;
+
+			Vector2 pixelUV = _rayHit.textureCoord;
+			pixelUV.x *= t2d.width;
+			pixelUV.y *= t2d.height;
+			Debug.Log(pixelUV);
+			
+			_texColour = t2d.GetPixel((int)pixelUV.x, (int)pixelUV.y);
+			//_checkingColour.value = Vector3.zero;
+			//int averageCounter = 0;
+			////Debug.Log("--------New Check!--------");
+			//for (int y = -_radius; y <= _radius; ++y)
+			//{
+			//	for (int x = -_radius; x <= _radius; ++x)
+			//	{
+			//		GOOColourManager.HSVColour tempColour = new GOOColourManager.HSVColour();
+			//		int pixelX = (int)pixelUV.x + x;
+			//		int pixelY = (int)pixelUV.y + y;
+			//		//Debug.Log("_______________________");
+			//		Color.RGBToHSV(t2d.GetPixel(pixelX, pixelY), out tempColour.value.x, out tempColour.value.y, out tempColour.value.z);
+			//		_checkingColour.value.x += tempColour.value.x;
+			//		_checkingColour.value.y += tempColour.value.y;
+			//		_checkingColour.value.z += tempColour.value.z;
+			//		averageCounter++;
+			//	}
+			//}
+			//_checkingColour.value /= averageCounter;
+			//_texColour = Color.HSVToRGB(_checkingColour.value.x, _checkingColour.value.y, _checkingColour.value.z);
+			//Debug.Log(new Vector3(_texColour.r, _texColour.g, _texColour.b));
+
+			//StartCoroutine("CheckGround");
+		}
+	}
+
+	private Texture2D RTexToT2D(RenderTexture rTex)
+	{
+		Texture2D t2d = new Texture2D(rTex.width, rTex.height);
+		Graphics.CopyTexture(rTex, 0, 0, t2d, 0, 0);
+		//RenderTexture.active = rTex;
+		//t2d.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
+		//t2d.Apply();
+		//RenderTexture.active = null;
+
+		return t2d;
 	}
 
 	IEnumerator CheckGround()
@@ -131,19 +186,33 @@ public class PlayerController : MonoBehaviour
 		{
 			Renderer rend = _rayHit.collider.gameObject.GetComponent<Renderer>();
 			Debug.Log(_rayHit.collider.name);
-			Texture tex = rend.material.GetTexture("_MaskTexture");
+			RenderTexture tex = rend.material.GetTexture("_MaskTexture") as RenderTexture;
 
-			_flatTexture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
-			_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-			_flatTexture.Apply();
+			Texture2D t2d = RTexToT2D(tex);
+
+			_tex = t2d;
+
+			//_flatTexture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
+			//_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+			//_flatTexture.Apply();
+
 
 			if (_flatTexture != null)
 			{
-				Vector2 pixelUV = _rayHit.textureCoord;
-				Debug.Log(pixelUV);
-				pixelUV.x *= _flatTexture.width;
-				pixelUV.y *= _flatTexture.height;
-				_texColour = _flatTexture.GetPixel((int)pixelUV.x, (int)pixelUV.y);
+				//Vector2 pixelUV = _rayHit.textureCoord;
+				//Debug.Log(pixelUV);
+				//pixelUV.x *= _flatTexture.width;
+				//pixelUV.y *= _flatTexture.height;
+
+				//uvCamera.targetTexture = tex;
+				//uvCamera.Render();
+				//RenderTexture.active = tex;
+
+				//_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+				//RenderTexture.active = null;
+
+
+				//_texColour = _flatTexture.GetPixel((int)pixelUV.x, (int)pixelUV.y);
 				// _checkingColour.value = Vector3.zero;
 				// int averageCounter = 0;
 				// //Debug.Log("--------New Check!--------");
