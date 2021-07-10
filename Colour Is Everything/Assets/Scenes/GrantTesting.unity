@@ -479,7 +479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.24
+      value: 0.09
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -487,19 +487,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.00000055232334
+      value: -0.00000055213485
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.99996275
+      value: 0.99929065
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.008634628
+      value: 0.0376611
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.000000001513399
+      value: -0.000000014521796
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -511,7 +511,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -0.9890137
+      value: -4.3170166
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -534,6 +534,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 172926497, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _maxRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 172926497, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _minRadius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1144606628, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _maxRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1144606628, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _minRadius
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1551979424889206277, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: m_Name
       value: Frosty_has_a_Gun
@@ -553,6 +569,10 @@ PrefabInstance:
     - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: _maxZVelocity
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _maxVelocityLerpSpeed
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2216454624960588991, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: m_RootOrder
@@ -600,7 +620,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3382314034520350695, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: m_Drag
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
@@ -1781,6 +1801,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gooColours:
   - {r: 1, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0.12941177, a: 1}
   _colourSensitivity: 0.15
 --- !u!4 &1604927019
 Transform:
