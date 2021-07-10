@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
@@ -44,9 +45,7 @@ public class PlayerController : MonoBehaviour
 
 	public Texture _tex;
 
-	private RenderTexture _rTex;
-
-	[SerializeField] private Camera uvCamera;
+	private Queue<Texture2D> _tex2DQueue = new Queue<Texture2D>();
 
 	void Awake()
 	{
@@ -131,6 +130,10 @@ public class PlayerController : MonoBehaviour
 			RenderTexture tex = rend.material.GetTexture("_MaskTexture") as RenderTexture;
 
 			Texture2D t2d = RTexToT2D(tex);
+			_tex2DQueue.Enqueue(t2d);
+
+			if (_tex2DQueue.Count > 1)
+				Destroy(_tex2DQueue.Dequeue());
 
 			_tex = t2d;
 
@@ -139,7 +142,18 @@ public class PlayerController : MonoBehaviour
 			pixelUV.y *= t2d.height;
 			Debug.Log(pixelUV);
 			
-			_texColour = t2d.GetPixel((int)pixelUV.x, (int)pixelUV.y);
+			_texColour = Color.clear;
+
+			Color[] pixels = t2d.GetPixels((int)pixelUV.x - _radius / 2, (int)pixelUV.y - _radius / 2, _radius, _radius);
+
+			foreach(Color pixel in pixels)
+			{
+				_texColour += pixel;
+			}
+
+			_texColour /= pixels.Length;
+			//_texColour = t2d.GetPixel((int)pixelUV.x, (int)pixelUV.y);
+			//Destroy(t2d);
 			//_checkingColour.value = Vector3.zero;
 			//int averageCounter = 0;
 			////Debug.Log("--------New Check!--------");
@@ -169,7 +183,10 @@ public class PlayerController : MonoBehaviour
 	private Texture2D RTexToT2D(RenderTexture rTex)
 	{
 		Texture2D t2d = new Texture2D(rTex.width, rTex.height);
-		Graphics.CopyTexture(rTex, 0, 0, t2d, 0, 0);
+		RenderTexture.active = rTex;
+		t2d.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
+		t2d.Apply();
+		
 		//RenderTexture.active = rTex;
 		//t2d.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
 		//t2d.Apply();
