@@ -26,7 +26,7 @@ public class CollisionPainter : MonoBehaviour
 		Paintable p = other.GetComponent<Paintable>();
 		if(p != null)
 		{
-			Debug.Log("Particle Collision!");
+			//Debug.Log("Particle Collision!");
 			for (int i = 0; i< numCollisionEvents; i++)
 			{
 				Vector3 pos = _collisionEvents[i].intersection;
