@@ -8,8 +8,6 @@ public class Paintable : MonoBehaviour
 
 	[SerializeField] private float _extendsIslandOffset = 1;
 
-	[SerializeField] private GameObject _gridObject = null;
-
 	private RenderTexture _extendIslandsRenderTexture;
 	private RenderTexture _uvIslandsRenderTexture;
 	private RenderTexture _maskRenderTexture;
@@ -44,12 +42,6 @@ public class Paintable : MonoBehaviour
 		_rend.material.SetTexture(_maskTextureID, _extendIslandsRenderTexture);
 
 		PaintManager.GetInstance().InitTextures(this);
-
-		// Need to get this to spawn these blocks all over the paintable surface.
-		// Could do this by using the collider - spawning tiles all along the outside, but I'm too smooth brain to know how to do that☹️
-		BoxCollider boxCollider = GetComponent<BoxCollider>();
-
-		Instantiate(_gridObject, transform.TransformPoint(boxCollider.center) + (Vector3.up * (boxCollider.size.y / 2)), Quaternion.identity, transform);
 	}
 
 	void OnDisable()

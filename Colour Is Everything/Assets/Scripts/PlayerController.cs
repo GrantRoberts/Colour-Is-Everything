@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-	[SerializeField] private ParticleSystem _shootingParticle = null;
+	private ParticleSystem _currentShootingParticle = null;
 
 	private Camera _mainCamera = null;
 
@@ -28,6 +28,20 @@ public class PlayerController : MonoBehaviour
 
 	[SerializeField] private Transform _gun = null;
 
+	[SerializeField] private Color _texColour = Color.clear;
+
+	[SerializeField] private int _radius = 3;
+
+	private RaycastHit _rayHit = new RaycastHit();
+
+	private Texture2D _flatTexture = null;
+
+	private bool _hitPaintable = false;
+
+	private GOOColourManager.HSVColour _checkingColour = new GOOColourManager.HSVColour();
+
+	[SerializeField] private List<ParticleSystem> _gooParticles = new List<ParticleSystem>();
+
 	void Awake()
 	{
 		_mainCamera = Camera.main;
@@ -35,7 +49,8 @@ public class PlayerController : MonoBehaviour
 
 		Cursor.lockState = CursorLockMode.Locked;
 
-		_shootingParticle.Stop();
+		_currentShootingParticle = _gooParticles[0];
+		_currentShootingParticle.Stop();
 	}
 
 	void FixedUpdate()
@@ -53,6 +68,13 @@ public class PlayerController : MonoBehaviour
 		_movementInput *= Time.deltaTime;
 
 		_rigid.AddForce(_movementInput, ForceMode.Impulse);
+
+		_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out _rayHit, 0.5f, 1 << 7);
+		if (_hitPaintable)
+		{
+			Debug.DrawLine(transform.position + Vector3.up * 0.5f, _rayHit.point);
+			StartCoroutine("CheckGround");
+		}
 	}
 
 	void Update()
@@ -81,13 +103,91 @@ public class PlayerController : MonoBehaviour
 		{
 			//Debug.Log("Bang!");
 			//Make sure particle isn't currently playing.
-			if (!_shootingParticle.isPlaying)
-			 	_shootingParticle.Play();
+			if (!_currentShootingParticle.isPlaying)
+				_currentShootingParticle.Play();
 		}
 		else
 		{
 			//Debug.Log("Stop");
-			_shootingParticle.Stop();
+			_currentShootingParticle.Stop();
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha1))
+		{
+			_currentShootingParticle.Stop();
+			_currentShootingParticle = _gooParticles[0];
+		}
+		else if (Input.GetKeyDown(KeyCode.Alpha2))
+		{
+			_currentShootingParticle.Stop();
+			_currentShootingParticle = _gooParticles[1];
+		}
+	}
+
+	IEnumerator CheckGround()
+	{
+		yield return new WaitForEndOfFrame();
+
+		if (_hitPaintable)
+		{
+			Renderer rend = _rayHit.collider.gameObject.GetComponent<Renderer>();
+			Debug.Log(_rayHit.collider.name);
+			Texture tex = rend.material.GetTexture("_MaskTexture");
+
+			_flatTexture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
+			_flatTexture.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+			_flatTexture.Apply();
+
+			if (_flatTexture != null)
+			{
+				Vector2 pixelUV = _rayHit.textureCoord;
+				Debug.Log(pixelUV);
+				pixelUV.x *= _flatTexture.width;
+				pixelUV.y *= _flatTexture.height;
+				_texColour = _flatTexture.GetPixel((int)pixelUV.x, (int)pixelUV.y);
+				// _checkingColour.value = Vector3.zero;
+				// int averageCounter = 0;
+				// //Debug.Log("--------New Check!--------");
+				// for (int y = -_radius; y <= _radius; ++y)
+				// {
+				// 	for (int x = -_radius; x <= _radius; ++x)
+				// 	{
+				// 		GOOColourManager.HSVColour tempColour = new GOOColourManager.HSVColour();
+				// 		int pixelX = (int)pixelUV.x + x;
+				// 		int pixelY = (int)pixelUV.y + y;
+				// 		//Debug.Log("_______________________");
+				// 		Color.RGBToHSV(_flatTexture.GetPixel(pixelX, pixelY), out tempColour.value.x, out tempColour.value.y, out tempColour.value.z);
+				// 		_checkingColour.value.x += tempColour.value.x;
+				// 		_checkingColour.value.y += tempColour.value.y;
+				// 		_checkingColour.value.z += tempColour.value.z;
+				// 		averageCounter++;
+				// 	}
+				// }
+				// _checkingColour.value /= averageCounter;
+				// _texColour = Color.HSVToRGB(_checkingColour.value.x, _checkingColour.value.y, _checkingColour.value.z);
+				//Debug.Log(new Vector3(_texColour.r, _texColour.g, _texColour.b));
+
+				GOOColourManager.eGOOColours type = new GOOColourManager.eGOOColours();
+
+				if (GOOColourManager._instance.CheckColour(_texColour, out type))
+				{
+					//Debug.Log("Standing on goo!");
+				}
+				//else
+				//Debug.Log("Not standing on goo!");
+			}
+			else
+			{
+				_texColour = Color.clear;
+			}
+		}
+	}
+
+	void OnDrawGizmos()
+	{
+		if (_hitPaintable)
+		{
+			Gizmos.color = Color.red;
+			Gizmos.DrawCube(_rayHit.point, Vector3.one * 0.2f);
 		}
 	}
 }
