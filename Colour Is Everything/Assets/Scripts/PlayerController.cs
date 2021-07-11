@@ -37,8 +37,6 @@ public class PlayerController : MonoBehaviour
 
 	[SerializeField] private Color _texColour = Color.clear;
 
-	[SerializeField] private int _radius = 3;
-
 	private RaycastHit _rayHit = new RaycastHit();
 
 	private bool _hitPaintable = false;
@@ -54,6 +52,11 @@ public class PlayerController : MonoBehaviour
 	private KeyCode[] _gooHotkeys = new KeyCode[4] { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4 };
 
 	[SerializeField] private float _speedGOOModifier = 5.0f;
+	[SerializeField] private float _bounceGOOModifier = 5.0f;
+
+	private bool _bounceGOOAffected = false;
+
+	private CapsuleCollider _capCollider = null;
 
 	void Awake()
 	{
@@ -67,6 +70,8 @@ public class PlayerController : MonoBehaviour
 
 		_currentMaxVelocity = _maxVelocity;
 		_targetMaxVelocity = _currentMaxVelocity;
+
+		_capCollider = GetComponent<CapsuleCollider>();
 	}
 
 	void FixedUpdate()
@@ -84,10 +89,13 @@ public class PlayerController : MonoBehaviour
 
 		if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, 0.8f))
 		{
+			if (_bounceGOOAffected)
+				_bounceGOOAffected = false;
+
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
 				Debug.Log("Jump!");
-				_rigid.velocity += Vector3.up * _jumpForce;
+				_rigid.velocity += Vector3.up * _jumpForce * Time.fixedDeltaTime;
 			}
 		}
 		else
@@ -95,11 +103,14 @@ public class PlayerController : MonoBehaviour
 			_rigid.velocity += Physics.gravity * Time.fixedDeltaTime;
 		}
 
-		_rigid.AddForce(_movementInput * _rigid.mass, ForceMode.Impulse);
+		if (!_bounceGOOAffected)
+		{
+			_rigid.AddForce(_movementInput * _rigid.mass, ForceMode.Impulse);
 
-		Vector3 tempVelocity = new Vector3(_rigid.velocity.x, 0.0f, _rigid.velocity.z);
-		Vector3 lateralMovement = Vector3.ClampMagnitude(tempVelocity, _currentMaxVelocity);
-		_rigid.velocity = lateralMovement + Vector3.up * _rigid.velocity.y;
+			Vector3 tempVelocity = new Vector3(_rigid.velocity.x, 0.0f, _rigid.velocity.z);
+			Vector3 lateralMovement = Vector3.ClampMagnitude(tempVelocity, _currentMaxVelocity);
+			_rigid.velocity = lateralMovement + Vector3.up * _rigid.velocity.y;
+		}
 	}
 
 	void Update()
@@ -152,6 +163,12 @@ public class PlayerController : MonoBehaviour
 		_currentMaxVelocity = Mathf.Lerp(_currentMaxVelocity, _targetMaxVelocity, Time.deltaTime * _maxVelocityLerpSpeed);
 
 		_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out _rayHit, 0.65f, 1 << 7);
+		// If the last raycast didn't hit anything, check in the direction the player is moving.
+		if (!_hitPaintable)
+		{
+			_hitPaintable = Physics.Raycast(transform.position + Vector3.up * 0.5f, _rigid.velocity, out _rayHit, 0.65f, 1 << 7);
+		}
+
 		if (_hitPaintable)
 		{
 			Debug.DrawLine(transform.position + Vector3.up * 0.5f, _rayHit.point);
@@ -186,8 +203,15 @@ public class PlayerController : MonoBehaviour
 			switch(type)
 			{
 				case GOOColourManager.eGOOColours.Bounce:
-				if (_rigid.velocity.y < 0.0f)
-					_rigid.velocity = Vector3.Reflect(Vector3.up * _rigid.velocity.y, _rayHit.normal);
+				// Only bounce while player is in the air.
+				if (Mathf.Abs(_rigid.velocity.y) > 0.0f)
+					_rigid.velocity = Vector3.Reflect(new Vector3
+					(
+						_rigid.velocity.x * _bounceGOOModifier,
+						_jumpForce * Time.fixedDeltaTime,
+						_rigid.velocity.z * _bounceGOOModifier
+					), _rayHit.normal);
+					_bounceGOOAffected = true;
 				break;
 
 				case GOOColourManager.eGOOColours.Speed:

@@ -479,7 +479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.09
+      value: 5.34
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -487,31 +487,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.00000055213485
+      value: 0.70710784
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.99929065
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.0376611
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.000000014521796
+      value: -0.70710576
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -360
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -4.3170166
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 5d450f4128fe57f40aadc2e9e6f95ea4, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -556,7 +556,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: _jumpForce
-      value: 7
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: _maxVelocity
@@ -569,6 +569,14 @@ PrefabInstance:
     - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: _maxZVelocity
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _bounceGOOModifier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
+      propertyPath: _bounceMovementBuffer
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1805245650388531784, guid: 56709f23f64ee0f48aee2bab31ad135d, type: 3}
       propertyPath: _maxVelocityLerpSpeed
